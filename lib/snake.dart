@@ -10,9 +10,9 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:sensors_plus/sensors_plus.dart';
 
-class Snake extends StatefulWidget 
+class Snake extends StatefulWidget
 {
-  Snake({Key? key, this.rows = 20, this.columns = 20, this.cellSize = 10.0}) : super(key: key) 
+  Snake({Key? key, this.rows = 20, this.columns = 20, this.cellSize = 10.0}) : super(key: key)
   {
     assert(10 <= rows);
     assert(10 <= columns);
@@ -28,7 +28,7 @@ class Snake extends StatefulWidget
   State<StatefulWidget> createState() => SnakeState(rows, columns, cellSize);
 }
 
-class SnakeBoardPainter extends CustomPainter 
+class SnakeBoardPainter extends CustomPainter
 {
   SnakeBoardPainter(this.state, this.cellSize);
 
@@ -36,7 +36,7 @@ class SnakeBoardPainter extends CustomPainter
   double cellSize;
 
   @override
-  void paint(Canvas canvas, Size size) 
+  void paint(Canvas canvas, Size size)
   {
     final blackLine = Paint()..color = Colors.black;
     final blackFilled = Paint()
@@ -47,7 +47,7 @@ class SnakeBoardPainter extends CustomPainter
       Rect.fromPoints(Offset.zero, size.bottomLeft(Offset.zero)),
       blackLine,
     );
-    for (final p in state!.body) 
+    for (final p in state!.body)
     {
       final a = Offset(cellSize * p.x, cellSize * p.y);
       final b = Offset(cellSize * (p.x + 1), cellSize * (p.y + 1));
@@ -57,15 +57,15 @@ class SnakeBoardPainter extends CustomPainter
   }
 
   @override
-  bool shouldRepaint(CustomPainter oldDelegate) 
+  bool shouldRepaint(CustomPainter oldDelegate)
   {
     return true;
   }
 }
 
-class SnakeState extends State<Snake> 
+class SnakeState extends State<Snake>
 {
-  SnakeState(int rows, int columns, this.cellSize) 
+  SnakeState(int rows, int columns, this.cellSize)
   {
     state = GameState(rows, columns);
   }
@@ -77,13 +77,13 @@ class SnakeState extends State<Snake>
   late Timer _timer;
 
   @override
-  Widget build(BuildContext context) 
+  Widget build(BuildContext context)
   {
     return CustomPaint(painter: SnakeBoardPainter(state, cellSize));
   }
 
   @override
-  void dispose() 
+  void dispose()
   {
     super.dispose();
     _streamSubscription.cancel();
@@ -91,16 +91,16 @@ class SnakeState extends State<Snake>
   }
 
   @override
-  void initState() 
+  void initState()
   {
     super.initState();
     _streamSubscription = accelerometerEvents.listen
     (
-      (AccelerometerEvent event) 
+      (AccelerometerEvent event)
       {
         setState
         (
-          () 
+          ()
           {
             acceleration = event;
           }
@@ -110,11 +110,11 @@ class SnakeState extends State<Snake>
 
     _timer = Timer.periodic
     (
-      const Duration(milliseconds: 200), (_) 
+      const Duration(milliseconds: 200), (_)
       {
         setState
         (
-          () 
+          ()
           {
             _step();
           }
@@ -123,7 +123,7 @@ class SnakeState extends State<Snake>
     );
   }
 
-  void _step() 
+  void _step()
   {
     final newDirection = acceleration == null
     ? null
@@ -136,9 +136,9 @@ class SnakeState extends State<Snake>
   }
 }
 
-class GameState 
+class GameState
 {
-  GameState(this.rows, this.columns) 
+  GameState(this.rows, this.columns)
   {
     snakeLength = math.min(rows, columns) - 5;
   }
@@ -150,7 +150,7 @@ class GameState
   List<math.Point<int>> body = <math.Point<int>>[const math.Point<int>(0, 0)];
   math.Point<int> direction = const math.Point<int>(1, 0);
 
-  void step(math.Point<int>? newDirection) 
+  void step(math.Point<int>? newDirection)
   {
     var next = body.last + direction;
     next = math.Point<int>(next.x % columns, next.y % rows);

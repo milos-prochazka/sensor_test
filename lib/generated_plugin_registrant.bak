@@ -11,7 +11,8 @@ import 'package:sensors_plus_web/sensors_plus_web.dart';
 import 'package:flutter_web_plugins/flutter_web_plugins.dart';
 
 // ignore: public_member_api_docs
-void registerPlugins(Registrar registrar) {
+void registerPlugins(Registrar registrar) 
+{
   SensorsPlugin.registerWith(registrar);
   registrar.registerMessageHandler();
 }

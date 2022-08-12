@@ -54,6 +54,10 @@ class _MyHomePageState extends State<MyHomePage>
   List<double>? _userAccelerometerValues;
   List<double>? _gyroscopeValues;
   List<double>? _magnetometerValues;
+  double _x = 0;
+  double _y = 0;
+  double _z = 0;
+
   final _streamSubscriptions = <StreamSubscription<dynamic>>[];
 
   @override
@@ -74,7 +78,8 @@ class _MyHomePageState extends State<MyHomePage>
       (
         children: <Widget>
         [
-          /*Column
+          indicator(context, _x, _y, _z, Colors.amber),
+          Column
           (
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: <Widget>
@@ -149,18 +154,44 @@ class _MyHomePageState extends State<MyHomePage>
                 ),
               ),
             ],
-          ),*/
-          Container( 
-    height:200,
-    width: 200,
-    decoration: BoxDecoration(
-      color: Colors.green,
-        borderRadius: BorderRadius.circular(100) 
-        //more than 50% of width makes circle
-    ),
-)
+          ),
+          indicator(context, -_x, -_y, _z, Colors.red.withAlpha(0x40)),
         ]
       ),
+    );
+  }
+
+  Widget indicator(BuildContext context, double xPos, double yPos, double zPos, Color color) 
+  {
+    return Builder
+    (
+      builder: (context) 
+      {
+        final media = MediaQuery.of(context);
+
+        final radius = 50 + 5 * zPos;
+        if (radius < 1) 
+        {
+          return const SizedBox.shrink();
+        } 
+        else 
+        {
+          return Positioned
+          (
+            left: media.size.width / 2 - radius + 10 * xPos,
+            top: media.size.height / 2 - radius - 30 * yPos,
+            child: Container
+            (
+              height: 2 * radius,
+              width: 2 * radius,
+              decoration: BoxDecoration
+              (
+                color: color, borderRadius: BorderRadius.circular(radius) //more than 50% of width makes circle
+              ),
+            )
+          );
+        }
+      },
     );
   }
 
@@ -178,6 +209,7 @@ class _MyHomePageState extends State<MyHomePage>
   void initState() 
   {
     super.initState();
+
     _streamSubscriptions.add
     (
       accelerometerEvents.listen
@@ -189,12 +221,15 @@ class _MyHomePageState extends State<MyHomePage>
             () 
             {
               _accelerometerValues = <double>[event.x, event.y, event.z];
+              _x = event.x;
+              _y = event.y;
+              _z = event.z;
             }
           );
         },
       ),
     );
-    _streamSubscriptions.add
+    /*_streamSubscriptions.add
     (
       gyroscopeEvents.listen
       (
@@ -225,7 +260,7 @@ class _MyHomePageState extends State<MyHomePage>
           );
         },
       ),
-    );
+    );*/
     _streamSubscriptions.add
     (
       magnetometerEvents.listen

@@ -10,17 +10,17 @@ import 'package:sensors_plus/sensors_plus.dart';
 
 import 'snake.dart';
 
-void main() 
+void main()
 {
   runApp(const MyApp());
 }
 
-class MyApp extends StatelessWidget 
+class MyApp extends StatelessWidget
 {
   const MyApp({Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) 
+  Widget build(BuildContext context)
   {
     return MaterialApp
     (
@@ -34,7 +34,7 @@ class MyApp extends StatelessWidget
   }
 }
 
-class MyHomePage extends StatefulWidget 
+class MyHomePage extends StatefulWidget
 {
   const MyHomePage({Key? key, this.title}) : super(key: key);
 
@@ -44,7 +44,7 @@ class MyHomePage extends StatefulWidget
   _MyHomePageState createState() => _MyHomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> 
+class _MyHomePageState extends State<MyHomePage>
 {
   static const int _snakeRows = 20;
   static const int _snakeColumns = 20;
@@ -54,10 +54,14 @@ class _MyHomePageState extends State<MyHomePage>
   List<double>? _userAccelerometerValues;
   List<double>? _gyroscopeValues;
   List<double>? _magnetometerValues;
+  double _x = 0;
+  double _y = 0;
+  double _z = 0;
+
   final _streamSubscriptions = <StreamSubscription<dynamic>>[];
 
   @override
-  Widget build(BuildContext context) 
+  Widget build(BuildContext context)
   {
     final accelerometer = _accelerometerValues?.map((double v) => v.toStringAsFixed(1)).toList();
     final gyroscope = _gyroscopeValues?.map((double v) => v.toStringAsFixed(1)).toList();
@@ -74,16 +78,7 @@ class _MyHomePageState extends State<MyHomePage>
       (
         children: <Widget>
         [
-          Container
-          (
-            height: 200,
-            width: 200,
-            decoration: BoxDecoration
-            (
-              color: Colors.green.withAlpha(0x80), borderRadius: BorderRadius.circular(100)
-              //more than 50% of width makes circle
-            ),
-          ),
+          indicator(context, _x, _y, _z, Colors.amber),
           Column
           (
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -160,48 +155,75 @@ class _MyHomePageState extends State<MyHomePage>
               ),
             ],
           ),
-                    
-          Container
-          (
-            height: 200,
-            width: 200,
-            decoration: BoxDecoration
-            (
-              color: Colors.red.withAlpha(0x80), borderRadius: BorderRadius.circular(100)
-              //more than 50% of width makes circle
-            ),
-          ),
-
+          indicator(context, -_x, -_y, _z, Colors.red.withAlpha(0x40)),
         ]
       ),
     );
   }
 
+  Widget indicator(BuildContext context, double xPos, double yPos, double zPos, Color color)
+  {
+    return Builder
+    (
+      builder: (context)
+      {
+        final media = MediaQuery.of(context);
+
+        final radius = 50 + 5 * zPos;
+        if (radius < 1)
+        {
+          return const SizedBox.shrink();
+        }
+        else
+        {
+          return Positioned
+          (
+            left: media.size.width / 2 - radius + 10 * xPos,
+            top: media.size.height / 2 - radius - 30 * yPos,
+            child: Container
+            (
+              height: 2 * radius,
+              width: 2 * radius,
+              decoration: BoxDecoration
+              (
+                color: color, borderRadius: BorderRadius.circular(radius) //more than 50% of width makes circle
+              ),
+            )
+          );
+        }
+      },
+    );
+  }
+
   @override
-  void dispose() 
+  void dispose()
   {
     super.dispose();
-    for (final subscription in _streamSubscriptions) 
+    for (final subscription in _streamSubscriptions)
     {
       subscription.cancel();
     }
   }
 
   @override
-  void initState() 
+  void initState()
   {
     super.initState();
+
     _streamSubscriptions.add
     (
       accelerometerEvents.listen
       (
-        (AccelerometerEvent event) 
+        (AccelerometerEvent event)
         {
           setState
           (
-            () 
+            ()
             {
               _accelerometerValues = <double>[event.x, event.y, event.z];
+              _x = event.x;
+              _y = event.y;
+              _z = event.z;
             }
           );
         },
@@ -211,11 +233,11 @@ class _MyHomePageState extends State<MyHomePage>
     (
       gyroscopeEvents.listen
       (
-        (GyroscopeEvent event) 
+        (GyroscopeEvent event)
         {
           setState
           (
-            () 
+            ()
             {
               _gyroscopeValues = <double>[event.x, event.y, event.z];
             }
@@ -227,11 +249,11 @@ class _MyHomePageState extends State<MyHomePage>
     (
       userAccelerometerEvents.listen
       (
-        (UserAccelerometerEvent event) 
+        (UserAccelerometerEvent event)
         {
           setState
           (
-            () 
+            ()
             {
               _userAccelerometerValues = <double>[event.x, event.y, event.z];
             }
@@ -243,11 +265,11 @@ class _MyHomePageState extends State<MyHomePage>
     (
       magnetometerEvents.listen
       (
-        (MagnetometerEvent event) 
+        (MagnetometerEvent event)
         {
           setState
           (
-            () 
+            ()
             {
               _magnetometerValues = <double>[event.x, event.y, event.z];
             }
